@@ -5,10 +5,10 @@
 #define MAX_MEMORY 3583
 
 
-int load_binary_file(unsigned char **buffer, char *filepath) {
+int loadBinaryFile(unsigned char **buffer, char *filepath) {
 	FILE *fileptr;
 
-	if((fileptr = fopen(filepath, "rb")) == NULL) {
+	if ((fileptr = fopen(filepath, "rb")) == NULL) {
 		printf("Load file error, invalid file\n");
 		exit(1);
 	}
@@ -17,18 +17,27 @@ int load_binary_file(unsigned char **buffer, char *filepath) {
 	const int filesize = ftell(fileptr);
 	rewind(fileptr);
 
-	if(filesize > MAX_MEMORY) {
+	if (filesize > MAX_MEMORY) {
 		printf("Binary file exceeds max value\n");
 		exit(1);
 	}
 	*buffer = (unsigned char *)malloc(filesize * sizeof(**buffer));
-	if(*buffer == NULL) {
+	if (*buffer == NULL) {
 		printf("Allocation failed\n");
 		exit(1);
 	}
 	fread(*buffer, filesize, 1, fileptr);
 	fclose(fileptr);
 	return filesize;
+}
+
+
+void safeFree(void **p) {
+	if (p != NULL && *p != NULL)
+	{
+		free(*p);
+		*p = NULL;
+	}
 }
 
 
@@ -44,15 +53,13 @@ int main(int argc, char const *argv[])
 	// remove new line
 	filepath[strcspn(filepath, "\n")] = 0;
 
-	if(ferror(stdin)) {
+	if (ferror(stdin)) {
 		printf("Read failed\n");
 		exit(1);
 	}
-	const int filesize = load_binary_file(&buffer, filepath);
+	const int filesize = loadBinaryFile(&buffer, filepath);
 	printf("Fetched %d bytes\n", filesize);
-	for(int i = 0; i < filesize; i++) {
-		printf("%x ", buffer[i]);
-	}
-	free(buffer);
+
+	safeFree((void**)&buffer);
 	return 0;
 }

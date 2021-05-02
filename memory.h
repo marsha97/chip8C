@@ -6,27 +6,13 @@
 
 struct Memory
 {
-	unsigned char *base;
+	unsigned char base[MAX_MEMORY];
 } mem;
 
 
-void init_mem() {
-	mem.base = (unsigned char *)malloc(INTERPRETER_SIZE * sizeof(*mem.base));
-	if (mem.base == NULL) {
-		printf("Failed to allocate interpreter memory\n");
-		exit(1);
-	}
-}
-
-
-void deinit_mem() {
-	safeFree((void **)&mem.base);
-}
-
-
-int load_mem(char *filepath) {
+void load_mem(char *filepath) {
 	FILE *fileptr;
-	int allocatedSize = 0;
+	int filesize = 0;
 
 	if ((fileptr = fopen(filepath, "rb")) == NULL) {
 		printf("Load file error, invalid file\n");
@@ -34,19 +20,13 @@ int load_mem(char *filepath) {
 	}
 
 	fseek(fileptr, 0L, SEEK_END);
-	allocatedSize = ftell(fileptr) + INTERPRETER_SIZE;
+	filesize = ftell(fileptr);
 	rewind(fileptr);
 
-	if (allocatedSize > MAX_MEMORY) {
+	if (filesize > MAX_MEMORY) {
 		printf("Binary file exceeds max value\n");
 		exit(1);
 	}
-	mem.base = (unsigned char *)realloc(mem.base, (allocatedSize) * sizeof(*mem.base));
-	if (mem.base == NULL) {
-		printf("Allocation failed\n");
-		exit(1);
-	}
-	fread(mem.base + INTERPRETER_SIZE, allocatedSize, 1, fileptr);
+	fread(mem.base + INTERPRETER_SIZE, filesize, 1, fileptr);
 	fclose(fileptr);
-	return allocatedSize;
 }

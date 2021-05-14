@@ -9,10 +9,10 @@ struct Memory
 	unsigned char base[MAX_MEMORY];
 } mem;
 
+int filesize = 0;
 
 void loadMem(char *filepath) {
 	FILE *fileptr;
-	int filesize = 0;
 
 	if ((fileptr = fopen(filepath, "rb")) == NULL) {
 		printf("Load file error, invalid file\n");

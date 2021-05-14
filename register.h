@@ -1,10 +1,12 @@
+#include <stdint.h>
+
 struct Register
 {
-	unsigned char V[16];
-	unsigned short I;
-	unsigned char sound;
-	unsigned char delay;
-	unsigned short programCounter;
-	unsigned char stackPointer;
-	unsigned short stack[16];
+	uint8_t V[16];
+	uint16_t I;
+	uint8_t sound;
+	uint8_t delay;
+	uint16_t programCounter;
+	uint8_t stackPointer;
+	uint16_t stack[16];
 } reg;

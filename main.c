@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "constants.h"
+#include "display.h"
 #include "memory.h"
 #include "register.h"
 
@@ -11,6 +12,7 @@ void init() {
 	for (int i = 0; i < sizeof(reg.stack) / sizeof(short); i++) {
 		reg.stack[i] = 0;
 	}
+	loadFonts(mem.base);
 }
 
 int main(int argc, char const *argv[])

@@ -14,21 +14,20 @@ void initMemAndReg() {
 	for (int i = 0; i < sizeof(reg.stack) / sizeof(short); i++) {
 		reg.stack[i] = 0;
 	}
-	loadFonts(mem.base);
+	loadFonts();
 }
 
 void loop() {
 	done = true;
 }
 
-int main(int argc, char const *argv[])
-{
+int main(int argc, char const *argv[]) {
 	if (argc != 2) {
 		printf("Error: usage is %s FILEPATH\n", argv[0]);
 		exit(1);
 	}
 
-	load_mem((char*)argv[1]);
+	loadMem((char*)argv[1]);
 	initMemAndReg();
 
 	if (initDisplay() != 0) {

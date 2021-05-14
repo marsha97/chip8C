@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,13 +7,18 @@
 #include "memory.h"
 #include "register.h"
 
+bool done = false;
 
-void init() {
+void initMemAndReg() {
 	reg.programCounter = INTERPRETER_SIZE;
 	for (int i = 0; i < sizeof(reg.stack) / sizeof(short); i++) {
 		reg.stack[i] = 0;
 	}
 	loadFonts(mem.base);
+}
+
+void loop() {
+	done = true;
 }
 
 int main(int argc, char const *argv[])
@@ -23,5 +29,16 @@ int main(int argc, char const *argv[])
 	}
 
 	load_mem((char*)argv[1]);
+	initMemAndReg();
+
+	if (initDisplay() != 0) {
+		return 1;
+	}
+
+	while(!done) {
+		loop();
+	}
+
+	endDisplay();
 	return 0;
 }

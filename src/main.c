@@ -19,6 +19,7 @@ void initMemAndReg() {
 		reg.stack[i] = 0;
 	}
 	loadFonts();
+	createSoundAndDelayThread();
 }
 
 void loop() {

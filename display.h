@@ -10,6 +10,7 @@ uint8_t screen[SCREEN_HEIGHT][SCREEN_WIDTH];
 SDL_Window *window = NULL;
 SDL_Surface *surface = NULL;
 SDL_Renderer *renderer = NULL;
+SDL_Rect rect;
 
 void clearScreen() {
 	for (int i = 0; i < SCREEN_HEIGHT; ++i)
@@ -19,11 +20,9 @@ void clearScreen() {
 			screen[i][j] = 0;
 		}
 	}
-	SDL_RenderClear(renderer);
 }
 
 void render() {
-	SDL_Rect rect;
 	for (int i = 0; i < SCREEN_HEIGHT; ++i)
 	{
 		for (int j = 0; j < SCREEN_WIDTH; j++) {
@@ -31,12 +30,12 @@ void render() {
 				SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 			}
 			else {
-				SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+				SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 			}
-			rect.x = 10;
-			rect.y = 0;
-			rect.w = 10;
-			rect.h = 10;
+			rect.x = j * PIXEL_SIZE;
+			rect.y = i * PIXEL_SIZE;
+			rect.w = PIXEL_SIZE;
+			rect.h = PIXEL_SIZE;
 			if (SDL_RenderFillRect(renderer, &rect) != 0) {
 				printf("Can't render pixel: %s\n", SDL_GetError());
 				exit(1);
@@ -49,7 +48,7 @@ void render() {
 	}
 }
 
-int initDisplay() {
+void initDisplay() {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 		printf("Can't init SDL: %s\n", SDL_GetError());
 		exit(1);
@@ -78,8 +77,8 @@ int initDisplay() {
 		printf("Failed to create renderer: %s\n", SDL_GetError());
 		exit(1);
 	}
+	SDL_RenderClear(renderer);
 	clearScreen();
-	return 0;
 }
 
 void endDisplay() {
@@ -93,5 +92,6 @@ bool loopGraphic() {
 			return true;
 		}
 	}
+	render();
 	return false;
 }

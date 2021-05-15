@@ -61,7 +61,6 @@ void draw(struct OPCode opc) {
 			screen[axisY][axisX] = newValue;
 		}
 	}
-	render();
 	reg.programCounter += 2;
 }
 

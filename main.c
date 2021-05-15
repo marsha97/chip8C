@@ -29,9 +29,6 @@ void loop() {
 	if (reg.programCounter < (INTERPRETER_SIZE + filesize) - 1) {
 		decodeOPCode(mem.base[reg.programCounter], mem.base[reg.programCounter + 1]);
 	}
-	else {
-		done = true;
-	}
 }
 
 int main(int argc, char const *argv[]) {
@@ -43,11 +40,7 @@ int main(int argc, char const *argv[]) {
 	loadMem((char*)argv[1]);
 	generateOPCodes();
 	initMemAndReg();
-
-	if (initDisplay() != 0) {
-		return 1;
-	}
-
+	initDisplay();
 	while(!done) {
 		loop();
 	}

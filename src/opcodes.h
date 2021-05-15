@@ -71,7 +71,7 @@ void returnFunc(struct OPCode _) {
 		exit(1);
 	}
 	reg.programCounter = reg.stack[reg.stackPointer];
-	reg.stack[reg.stackPointer] = NULL;
+	reg.stack[reg.stackPointer] = 0;
 	if(reg.stackPointer) {
 		reg.stackPointer--;
 	}
@@ -160,7 +160,7 @@ void subtractVyVx(struct OPCode opc) {
 void shiftLeft(struct OPCode opc) {
 	uint8_t rsb = reg.V[opc.secondOrder] & 0x80;
 	reg.V[0xF] = rsb;
-	reb.V[opc.secondOrder] *= 2;
+	reg.V[opc.secondOrder] *= 2;
 	next();
 }
 
@@ -176,7 +176,7 @@ void jumpWithV0(struct OPCode opc) {
 	next();
 }
 
-void random(struct OPCode opc) {
+void randomizeReg(struct OPCode opc) {
 	uint8_t kk = (opc.thirdOrder << 4) | opc.fourthOrder;
 	srand(time(NULL));
 	uint8_t randomNum = rand() % 256;
@@ -196,7 +196,7 @@ void setFont(struct OPCode opc) {
 	next();
 }
 
-void storeBCD(struct OPcode opc) {
+void storeBCD(struct OPCode opc) {
 	uint8_t val = reg.V[opc.secondOrder];
 	for(int i = 2; i >= 0; --i) {
 		uint8_t digit = val % 10;

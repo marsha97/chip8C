@@ -245,6 +245,21 @@ void waitForKey(struct OPCode opc) {
 	next();
 }
 
+void setVxWithDT(struct OPCode opc) {
+	reg.V[opc.secondOrder] = reg.delay;
+	next();
+}
+
+void setDT(struct OPCode opc) {
+	reg.delay = reg.V[opc.secondOrder];
+	next();
+}
+
+void setST(struct OPCode opc) {
+	reg.sound = reg.V[opc.secondOrder];
+	next();
+}
+
 void generateOPCodes() {
 	opcodes[0].firstOrder = 0x0;
 	opcodes[0].secondOrder = 0x0;
@@ -370,6 +385,7 @@ void generateOPCodes() {
 	opcodes[25].firstOrder = 0xF;
 	opcodes[25].thirdOrder = 0x0;
 	opcodes[25].fourthOrder = 0x7;
+	opcodes[25].func = &setVxWithDT;
 	opcodes[25].description = "Set Vx = delay timer value.";
 
 	opcodes[26].firstOrder = 0xF;
@@ -381,11 +397,13 @@ void generateOPCodes() {
 	opcodes[27].firstOrder = 0xF;
 	opcodes[27].thirdOrder = 0x1;
 	opcodes[27].fourthOrder = 0x5;
+	opcodes[27].func = &setDT;
 	opcodes[27].description = "Set delay timer = Vx.";
 
 	opcodes[28].firstOrder = 0xF;
 	opcodes[28].thirdOrder = 0x1;
 	opcodes[28].fourthOrder = 0x8;
+	opcodes[28].func = &setST;
 	opcodes[28].description = "Set sound timer = Vx";
 
 	opcodes[29].firstOrder = 0xF;
@@ -450,10 +468,10 @@ void decodeOPCode(uint8_t opcode1, uint8_t opcode2) {
 	}
 	if(maxHit) {
 		// TODO: add debugging feature
-		if (found.description) {
-			printf("Executing %02x%02x: %s, addr: %02x(%02x)\n", opcode1, opcode2, found.description,
-			   	   reg.programCounter, reg.programCounter - INTERPRETER_SIZE);
-		}
+		// if (found.description) {
+		// 	printf("Executing %02x%02x: %s, addr: %02x(%02x)\n", opcode1, opcode2, found.description,
+		// 	   	   reg.programCounter, reg.programCounter - INTERPRETER_SIZE);
+		// }
 		if(!found.func) {
 			printf("Function is not yet implemented for %02x%02x\n", opcode1, opcode2);
 			exit(1);

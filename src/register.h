@@ -23,7 +23,7 @@ int decrementSound(void *_) {
 			continue;
 		}
 		--reg.sound;
-		SDL_Delay(16.7);
+		SDL_Delay(16.66);
 	}	
 	return 0;
 }
@@ -36,7 +36,7 @@ int decrementDelay(void *_) {
 			continue;
 		}
 		--reg.delay;
-		SDL_Delay(16.7);
+		SDL_Delay(16.66);
 	}	
 	return 0;
 }

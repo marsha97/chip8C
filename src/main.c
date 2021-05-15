@@ -29,6 +29,7 @@ void loop() {
 	if (reg.programCounter < (INTERPRETER_SIZE + filesize) - 1) {
 		decodeOPCode(mem.base[reg.programCounter], mem.base[reg.programCounter + 1]);
 	}
+	SDL_Delay(1.5);
 }
 
 int main(int argc, char const *argv[]) {

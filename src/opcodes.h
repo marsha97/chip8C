@@ -336,30 +336,36 @@ void generateOPCodes() {
 	opcodes[23].firstOrder = 0xE;
 	opcodes[23].thirdOrder = 0x9;
 	opcodes[23].fourthOrder = 0xE;
+	opcodes[23].description = "Skip next instruction if key with the value of Vx is pressed";
 
 	opcodes[24].firstOrder = 0xE;
 	opcodes[24].thirdOrder = 0xA;
 	opcodes[24].fourthOrder = 0x1;
+	opcodes[24].description = "Skip next instruction if key with the value of Vx is not pressed";
 
 	opcodes[25].firstOrder = 0xF;
 	opcodes[25].thirdOrder = 0x0;
 	opcodes[25].fourthOrder = 0x7;
+	opcodes[25].description = "Set Vx = delay timer value.";
 
 	opcodes[26].firstOrder = 0xF;
 	opcodes[26].thirdOrder = 0x0;
 	opcodes[26].fourthOrder = 0xA;
+	opcodes[26].description = "Wait for a key press, store the value of the key in Vx.";
 	
 	opcodes[27].firstOrder = 0xF;
 	opcodes[27].thirdOrder = 0x1;
 	opcodes[27].fourthOrder = 0x5;
+	opcodes[27].description = "Set delay timer = Vx.";
 
 	opcodes[28].firstOrder = 0xF;
 	opcodes[28].thirdOrder = 0x1;
 	opcodes[28].fourthOrder = 0x8;
+	opcodes[28].description = "Set sound timer = Vx";
 
 	opcodes[29].firstOrder = 0xF;
 	opcodes[29].thirdOrder = 0x1;
-	opcodes[29].thirdOrder = 0xE;
+	opcodes[29].fourthOrder = 0xE;
 	opcodes[29].func = &addIWithVx;
 	opcodes[29].description = "Add I with Vx";
 
@@ -418,15 +424,16 @@ void decodeOPCode(uint8_t opcode1, uint8_t opcode2) {
 		}
 	}
 	if(maxHit) {
+		printf("Executing %02x%02x: %s, addr: %02x(%02x)\n", opcode1, opcode2, found.description,
+			   reg.programCounter, reg.programCounter - INTERPRETER_SIZE);
 		if(!found.func) {
-			printf("Function is not yet implemented for %x%x\n", opcode1, opcode2);
+			printf("Function is not yet implemented for %02x%02x\n", opcode1, opcode2);
 			exit(1);
 		}
 		found.func(opc);
-		printf("Executing %x%x: %s\n", opcode1, opcode2, found.description);
 	}
 	else {
-		printf("OPCode not found: %x%x\n", opcode1, opcode2);
+		printf("OPCode not found: %02x%02x\n", opcode1, opcode2);
 		exit(1);
 	}
 }

@@ -15,7 +15,7 @@ struct OPCode {
 	uint8_t fourthOrder: 4;
 	char *description;
 	void (*func)(struct OPCode);
-} opcodes[36];
+} opcodes[34];
 
 
 void _clearScreen(struct OPCode _) {

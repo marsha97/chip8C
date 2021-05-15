@@ -13,8 +13,9 @@ struct OPCode {
 	uint8_t secondOrder: 4;
 	uint8_t thirdOrder: 4;
 	uint8_t fourthOrder: 4;
+	char *description;
 	void (*func)(struct OPCode);
-} opcodes[6];
+} opcodes[36];
 
 
 void _clearScreen(struct OPCode _) {
@@ -228,21 +229,163 @@ void generateOPCodes() {
 	opcodes[0].thirdOrder = 0xE;
 	opcodes[0].fourthOrder = 0x0;
 	opcodes[0].func = &_clearScreen;
+	opcodes[0].description = "Clear Screen";
 
-	opcodes[1].firstOrder = 0x1;
-	opcodes[1].func = &jump;
+	opcodes[1].firstOrder = 0x0;
+	opcodes[1].secondOrder = 0x0;
+	opcodes[1].thirdOrder = 0xE;
+	opcodes[1].fourthOrder = 0xE;
+	opcodes[1].func = &returnFunc;
+	opcodes[1].description = "Return from function";
 
-	opcodes[2].firstOrder = 0x6;
-	opcodes[2].func = &setVx;
+	opcodes[2].firstOrder = 0x1;
+	opcodes[2].func = &jump;
+	opcodes[2].description = "Jump";
 
-	opcodes[3].firstOrder = 0x7;
-	opcodes[3].func = &addVx;
+	opcodes[3].firstOrder = 0x2;
+	opcodes[3].func = &call;
+	opcodes[3].description = "Call subroutine";
 
-	opcodes[4].firstOrder = 0xA;
-	opcodes[4].func = &setI;
+	opcodes[4].firstOrder = 0x3;
+	opcodes[4].func = &skip;
+	opcodes[4].description = "Skip";
 
-	opcodes[5].firstOrder = 0xD;
-	opcodes[5].func = &draw;
+	opcodes[5].firstOrder = 0x4;
+	opcodes[5].func = &skipIfNotEqual;
+	opcodes[5].description = "Skip if not equal";
+
+	opcodes[6].firstOrder = 0x5;
+	opcodes[6].fourthOrder = 0x0;
+	opcodes[6].func = &skipIfRegEqual;
+	opcodes[6].description = "Skip if register is equal";
+	
+	opcodes[7].firstOrder = 0x6;
+	opcodes[7].func = &setVx;
+	opcodes[7].description = "Set Vx";
+
+	opcodes[8].firstOrder = 0x7;
+	opcodes[8].func = &addVx;
+	opcodes[8].description = "Add Vx";
+
+	opcodes[9].firstOrder = 0x8;
+	opcodes[9].fourthOrder = 0x0;
+	opcodes[9].func = &setVxWithVy;
+	opcodes[9].description = "Set Vx with Wy";
+
+	opcodes[10].firstOrder = 0x8;
+	opcodes[10].fourthOrder = 0x1;
+	opcodes[10].func = &or;
+	opcodes[10].description = "Perform OR operation";
+
+	opcodes[11].firstOrder = 0x8;
+	opcodes[11].fourthOrder = 0x2;
+	opcodes[11].func = &and;
+	opcodes[11].description = "Perform AND operation";
+
+	opcodes[12].firstOrder = 0x8;
+	opcodes[12].fourthOrder = 0x3;
+	opcodes[12].func = &xor;
+	opcodes[12].description = "Perform XOR Operation";
+
+	opcodes[13].firstOrder = 0x8;
+	opcodes[13].fourthOrder = 0x4;
+	opcodes[13].func = &addVxVy;
+	opcodes[13].description = "Add Vx and Vy";
+
+	opcodes[14].firstOrder = 0x8;
+	opcodes[14].fourthOrder = 0x5;
+	opcodes[14].func = &subtractVxVy;
+	opcodes[14].description = "Substract Vx and Vy";
+
+	opcodes[15].firstOrder = 0x8;
+	opcodes[15].fourthOrder = 0x6;
+	opcodes[15].func = &shiftRight;
+	opcodes[15].description = "Perform shift right operation";
+
+	opcodes[16].firstOrder = 0x8;
+	opcodes[16].fourthOrder = 0x7;
+	opcodes[16].func = &subtractVyVx;
+	opcodes[16].description = "Substract Vy and Vx";
+
+	opcodes[17].firstOrder = 0x8;
+	opcodes[17].fourthOrder = 0xE;
+	opcodes[17].func = &shiftLeft;
+	opcodes[17].description = "Perform shift left operation";
+
+	opcodes[18].firstOrder = 0x9;
+	opcodes[18].fourthOrder = 0x0;
+	opcodes[18].func = &skipIfVxNotVy;
+	opcodes[18].description = "Skip if Vx != Vy";
+
+	opcodes[19].firstOrder = 0xA;
+	opcodes[19].func = &setI;
+	opcodes[19].description = "Set I";
+
+	opcodes[20].firstOrder = 0xB;
+	opcodes[20].func = &jumpWithV0;
+	opcodes[20].description = "Jump with V0";
+
+	opcodes[21].firstOrder = 0xC;
+	opcodes[21].func = &randomizeReg;
+	opcodes[21].description = "Randomize register";
+
+	opcodes[22].firstOrder = 0xD;
+	opcodes[22].func = &draw;
+	opcodes[22].description = "Draw";
+
+	opcodes[23].firstOrder = 0xE;
+	opcodes[23].thirdOrder = 0x9;
+	opcodes[23].fourthOrder = 0xE;
+
+	opcodes[24].firstOrder = 0xE;
+	opcodes[24].thirdOrder = 0xA;
+	opcodes[24].fourthOrder = 0x1;
+
+	opcodes[25].firstOrder = 0xF;
+	opcodes[25].thirdOrder = 0x0;
+	opcodes[25].fourthOrder = 0x7;
+
+	opcodes[26].firstOrder = 0xF;
+	opcodes[26].thirdOrder = 0x0;
+	opcodes[26].fourthOrder = 0xA;
+	
+	opcodes[27].firstOrder = 0xF;
+	opcodes[27].thirdOrder = 0x1;
+	opcodes[27].fourthOrder = 0x5;
+
+	opcodes[28].firstOrder = 0xF;
+	opcodes[28].thirdOrder = 0x1;
+	opcodes[28].fourthOrder = 0x8;
+
+	opcodes[29].firstOrder = 0xF;
+	opcodes[29].thirdOrder = 0x1;
+	opcodes[29].thirdOrder = 0xE;
+	opcodes[29].func = &addIWithVx;
+	opcodes[29].description = "Add I with Vx";
+
+	opcodes[30].firstOrder = 0xF;
+	opcodes[30].thirdOrder = 0x2;
+	opcodes[30].fourthOrder = 0x9;
+	opcodes[30].func = &setFont;
+	opcodes[30].description = "Set font";
+
+	opcodes[31].firstOrder = 0xF;
+	opcodes[31].thirdOrder = 0x3;
+	opcodes[31].fourthOrder = 0x3;
+	opcodes[31].func = &storeBCD;
+	opcodes[31].description = "Store BCD";
+
+	opcodes[32].firstOrder = 0xF;
+	opcodes[32].thirdOrder = 0x5;
+	opcodes[32].fourthOrder = 0x5;
+	opcodes[32].func = &copyToMem;
+	opcodes[32].description = "Copy to memory";
+
+	opcodes[33].firstOrder = 0xF;
+	opcodes[33].thirdOrder = 0x6;
+	opcodes[33].fourthOrder = 0x5;
+	opcodes[33].func = &copyToReg;
+	opcodes[33].description = "Copy to register";
 }
 
 void decodeOPCode(uint8_t opcode1, uint8_t opcode2) {
@@ -269,13 +412,18 @@ void decodeOPCode(uint8_t opcode1, uint8_t opcode2) {
 		if (opc.fourthOrder == _opc.fourthOrder) {
 			hit++;
 		}
-		if (hit > maxHit) {
+		if (hit > maxHit && opc.firstOrder == _opc.firstOrder) {
 			maxHit = hit;
 			found = opcodes[i];
 		}
 	}
 	if(maxHit) {
+		if(!found.func) {
+			printf("Function is not yet implemented for %x%x\n", opcode1, opcode2);
+			exit(1);
+		}
 		found.func(opc);
+		printf("Executing %x%x: %s\n", opcode1, opcode2, found.description);
 	}
 	else {
 		printf("OPCode not found: %x%x\n", opcode1, opcode2);

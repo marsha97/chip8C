@@ -22,7 +22,7 @@ void initMemAndReg() {
 }
 
 void loop() {
-	done = loopGraphic();
+	done = !loopGraphic();
 	if(done) {
 		return;
 	}

@@ -89,9 +89,9 @@ bool loopGraphic() {
 	SDL_Event e;
 	while(SDL_PollEvent(&e)) {
 		if(e.type == SDL_QUIT) {
-			return true;
+			return false;
 		}
 	}
 	render();
-	return false;
+	return true;
 }

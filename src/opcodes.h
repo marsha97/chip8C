@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdlib.h>
+#include <time.h>
 #ifndef CHIP8_H
 #define CHIP8_H
 #include "display.h"
@@ -18,7 +19,7 @@ struct OPCode {
 
 void _clearScreen(struct OPCode _) {
 	clearScreen();
-	reg.programCounter += 2;
+	next();
 }
 
 void jump(struct OPCode opc) {
@@ -27,17 +28,17 @@ void jump(struct OPCode opc) {
 
 void setVx(struct OPCode opc) {
 	reg.V[opc.secondOrder] = (opc.thirdOrder << 4) | opc.fourthOrder;
-	reg.programCounter += 2;
+	next();
 }
 
 void addVx(struct OPCode opc) {
 	reg.V[opc.secondOrder] += (opc.thirdOrder << 4) | opc.fourthOrder;
-	reg.programCounter += 2;
+	next();
 }
 
 void setI(struct OPCode opc) {
 	reg.I =  (opc.secondOrder << 8) | (opc.thirdOrder << 4) | opc.fourthOrder;
-	reg.programCounter += 2;
+	next();
 }
 
 void draw(struct OPCode opc) {
@@ -61,7 +62,164 @@ void draw(struct OPCode opc) {
 			screen[axisY][axisX] = newValue;
 		}
 	}
-	reg.programCounter += 2;
+	next();
+}
+
+void returnFunc(struct OPCode _) {
+	if(!reg.stack[reg.stackPointer]) {
+		printf("Invalid return address\n");
+		exit(1);
+	}
+	reg.programCounter = reg.stack[reg.stackPointer];
+	reg.stack[reg.stackPointer] = NULL;
+	if(reg.stackPointer) {
+		reg.stackPointer--;
+	}
+	next();
+}
+
+void call(struct OPCode opc) {
+	reg.stack[++reg.stackPointer] = reg.programCounter;
+	reg.programCounter = (opc.secondOrder << 8) | (opc.thirdOrder << 4) | opc.fourthOrder;
+}
+
+void skip(struct OPCode opc) {
+	uint8_t x = opc.secondOrder;
+	uint8_t kk = (opc.thirdOrder << 4) | opc.fourthOrder;
+	if(reg.V[x] == kk) {
+		next();
+	}
+	next();
+}
+
+void skipIfNotEqual(struct OPCode opc) {
+	uint8_t x = opc.secondOrder;
+	uint8_t kk = (opc.thirdOrder << 4) | opc.fourthOrder;
+	if(reg.V[x] != kk) {
+		next();
+	}
+	next();
+}
+
+void skipIfRegEqual(struct OPCode opc) {
+	uint8_t x = opc.secondOrder;
+	uint8_t y = opc.thirdOrder;
+	if(reg.V[x] == reg.V[y]) {
+		next();
+	}
+	next();
+}
+
+void setVxWithVy(struct OPCode opc) {
+	reg.V[opc.secondOrder] = reg.V[opc.thirdOrder];
+	next();
+}
+
+void or(struct OPCode opc) {
+	reg.V[opc.secondOrder]= reg.V[opc.secondOrder] | reg.V[opc.thirdOrder];
+	next();
+}
+
+void and(struct OPCode opc) {
+	reg.V[opc.secondOrder] = reg.V[opc.secondOrder] & reg.V[opc.thirdOrder];
+	next();
+}
+
+void xor(struct OPCode opc) {
+	reg.V[opc.secondOrder] = reg.V[opc.secondOrder] ^ reg.V[opc.thirdOrder];
+	next();
+}
+
+void addVxVy(struct OPCode opc) {
+	int result = reg.V[opc.secondOrder] + reg.V[opc.thirdOrder];
+	reg.V[0xF] = result > 0xFF;
+	reg.V[opc.secondOrder] = result;
+
+	next();
+}
+
+void subtractVxVy(struct OPCode opc) {
+	reg.V[0xF] = reg.V[opc.secondOrder] > reg.V[opc.thirdOrder];
+	reg.V[opc.secondOrder] -= reg.V[opc.thirdOrder];
+	next();
+}
+
+void shiftRight(struct OPCode opc) {
+	uint8_t lsb = reg.V[opc.secondOrder] & 0x01;
+	reg.V[0xF] = lsb;
+	reg.V[opc.secondOrder] /= 2;
+	next();
+}
+
+void subtractVyVx(struct OPCode opc) {
+	reg.V[0xF] = reg.V[opc.thirdOrder] > reg.V[opc.secondOrder];
+	reg.V[opc.secondOrder] = reg.V[opc.thirdOrder] - reg.V[opc.secondOrder];
+	next();
+}
+
+void shiftLeft(struct OPCode opc) {
+	uint8_t rsb = reg.V[opc.secondOrder] & 0x80;
+	reg.V[0xF] = rsb;
+	reb.V[opc.secondOrder] *= 2;
+	next();
+}
+
+void skipIfVxNotVy(struct OPCode opc) {
+	if(reg.V[opc.secondOrder] != reg.V[opc.thirdOrder]) {
+		next();
+	}
+	next();
+}
+
+void jumpWithV0(struct OPCode opc) {
+	reg.programCounter = ((opc.secondOrder << 8) | (opc.thirdOrder << 4) | opc.fourthOrder) + reg.V[0x0];
+	next();
+}
+
+void random(struct OPCode opc) {
+	uint8_t kk = (opc.thirdOrder << 4) | opc.fourthOrder;
+	srand(time(NULL));
+	uint8_t randomNum = rand() % 256;
+	reg.V[opc.secondOrder] = randomNum & kk;
+	next();
+}
+
+void addIWithVx(struct OPCode opc) {
+	reg.I += reg.V[opc.secondOrder];
+	next();
+}
+
+void setFont(struct OPCode opc) {
+	uint8_t askedFont = reg.V[opc.secondOrder] & 0x01;
+	// each font takes 5 column
+	reg.I = askedFont * 5;
+	next();
+}
+
+void storeBCD(struct OPcode opc) {
+	uint8_t val = reg.V[opc.secondOrder];
+	for(int i = 2; i >= 0; --i) {
+		uint8_t digit = val % 10;
+		mem.base[reg.I + i] = digit;
+		val = (val - digit) / 10;
+	}
+	next();
+}
+
+void copyToMem(struct OPCode opc) {
+	uint8_t x = opc.secondOrder;
+	for(int i = 0; i <= x; i++) {
+		mem.base[reg.I + i] = reg.V[i];
+	}
+	next();
+}
+
+void copyToReg(struct OPCode opc) {
+	uint8_t x = opc.secondOrder;
+	for(int i = 0; i <= x; i++) {
+		reg.V[i] = mem.base[reg.I + 1];
+	}
+	next();
 }
 
 void generateOPCodes() {

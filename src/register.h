@@ -10,3 +10,7 @@ struct Register
 	uint8_t stackPointer;
 	uint16_t stack[16];
 } reg;
+
+void next() {
+	reg.programCounter += 2;
+}

@@ -223,6 +223,28 @@ void copyToReg(struct OPCode opc) {
 	next();
 }
 
+void skipIfPressed(struct OPCode opc) {
+	if (keyboardIsDown && pressedKeyboard == reg.V[opc.secondOrder]) {
+		next();
+	}
+	next();
+}
+
+void skipIfNotPressed(struct OPCode opc) {
+	if (!keyboardIsDown || pressedKeyboard != reg.V[opc.secondOrder]) {
+		next();
+	}
+	next();
+}
+
+void waitForKey(struct OPCode opc) {
+	if (!keyboardIsDown) {
+		return;
+	}
+	reg.V[opc.secondOrder] = pressedKeyboard;
+	next();
+}
+
 void generateOPCodes() {
 	opcodes[0].firstOrder = 0x0;
 	opcodes[0].secondOrder = 0x0;
@@ -336,11 +358,13 @@ void generateOPCodes() {
 	opcodes[23].firstOrder = 0xE;
 	opcodes[23].thirdOrder = 0x9;
 	opcodes[23].fourthOrder = 0xE;
+	opcodes[23].func = &skipIfPressed;
 	opcodes[23].description = "Skip next instruction if key with the value of Vx is pressed";
 
 	opcodes[24].firstOrder = 0xE;
 	opcodes[24].thirdOrder = 0xA;
 	opcodes[24].fourthOrder = 0x1;
+	opcodes[24].func = &skipIfNotPressed;
 	opcodes[24].description = "Skip next instruction if key with the value of Vx is not pressed";
 
 	opcodes[25].firstOrder = 0xF;
@@ -351,6 +375,7 @@ void generateOPCodes() {
 	opcodes[26].firstOrder = 0xF;
 	opcodes[26].thirdOrder = 0x0;
 	opcodes[26].fourthOrder = 0xA;
+	opcodes[26].func = &waitForKey;
 	opcodes[26].description = "Wait for a key press, store the value of the key in Vx.";
 	
 	opcodes[27].firstOrder = 0xF;
@@ -424,8 +449,11 @@ void decodeOPCode(uint8_t opcode1, uint8_t opcode2) {
 		}
 	}
 	if(maxHit) {
-		printf("Executing %02x%02x: %s, addr: %02x(%02x)\n", opcode1, opcode2, found.description,
-			   reg.programCounter, reg.programCounter - INTERPRETER_SIZE);
+		// TODO: add debugging feature
+		if (found.description) {
+			printf("Executing %02x%02x: %s, addr: %02x(%02x)\n", opcode1, opcode2, found.description,
+			   	   reg.programCounter, reg.programCounter - INTERPRETER_SIZE);
+		}
 		if(!found.func) {
 			printf("Function is not yet implemented for %02x%02x\n", opcode1, opcode2);
 			exit(1);

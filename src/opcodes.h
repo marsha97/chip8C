@@ -47,6 +47,7 @@ void draw(struct OPCode opc) {
 	uint8_t y = reg.V[opc.thirdOrder];
 	// n is row
 	uint8_t n = opc.fourthOrder;
+	reg.V[0xF] = 0;
 	for (int i = 0; i < n; ++i)
 	{
 		uint8_t sprites = mem.base[(reg.I + i)];

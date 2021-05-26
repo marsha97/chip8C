@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #ifndef CHIP8_H
 #define CHIP8_H
 #include "constants.h"
@@ -39,6 +40,7 @@ int main(int argc, char const *argv[]) {
 		exit(1);
 	}
 
+	srand(time(NULL));
 	loadMem((char*)argv[1]);
 	generateOPCodes();
 	initMemAndReg();

@@ -180,7 +180,6 @@ void jumpWithV0(struct OPCode opc) {
 
 void randomizeReg(struct OPCode opc) {
 	uint8_t kk = (opc.thirdOrder << 4) | opc.fourthOrder;
-	srand(time(NULL));
 	uint8_t randomNum = rand() % 256;
 	reg.V[opc.secondOrder] = randomNum & kk;
 	next();
@@ -192,7 +191,8 @@ void addIWithVx(struct OPCode opc) {
 }
 
 void setFont(struct OPCode opc) {
-	uint8_t askedFont = reg.V[opc.secondOrder] & 0x01;
+	uint8_t askedFont = reg.V[opc.secondOrder];
+	printf("asked: %x\n", askedFont);
 	// each font takes 5 column
 	reg.I = askedFont * 5;
 	next();
@@ -220,6 +220,7 @@ void copyToReg(struct OPCode opc) {
 	uint8_t x = opc.secondOrder;
 	for(int i = 0; i <= x; i++) {
 		reg.V[i] = mem.base[reg.I + 1];
+		printf("V[%d] = %x\n", i, reg.V[i]);
 	}
 	next();
 }
@@ -242,6 +243,7 @@ void waitForKey(struct OPCode opc) {
 	if (!keyboardIsDown) {
 		return;
 	}
+	printf("press %x\n", pressedKeyboard);
 	reg.V[opc.secondOrder] = pressedKeyboard;
 	next();
 }
@@ -393,7 +395,7 @@ void generateOPCodes() {
 	opcodes[26].thirdOrder = 0x0;
 	opcodes[26].fourthOrder = 0xA;
 	opcodes[26].func = &waitForKey;
-	opcodes[26].description = "Wait for a key press, store the value of the key in Vx.";
+	// opcodes[26].description = "Wait for a key press, store the value of the key in Vx.";
 	
 	opcodes[27].firstOrder = 0xF;
 	opcodes[27].thirdOrder = 0x1;
@@ -469,10 +471,10 @@ void decodeOPCode(uint8_t opcode1, uint8_t opcode2) {
 	}
 	if(maxHit) {
 		// TODO: add debugging feature
-		// if (found.description) {
-		// 	printf("Executing %02x%02x: %s, addr: %02x(%02x)\n", opcode1, opcode2, found.description,
-		// 	   	   reg.programCounter, reg.programCounter - INTERPRETER_SIZE);
-		// }
+		if (found.description) {
+			printf("Executing %02x%02x: %s, addr: %02x(%02x)\n", opcode1, opcode2, found.description,
+			   	   reg.programCounter, reg.programCounter - INTERPRETER_SIZE);
+		}
 		if(!found.func) {
 			printf("Function is not yet implemented for %02x%02x\n", opcode1, opcode2);
 			exit(1);

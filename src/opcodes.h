@@ -29,11 +29,13 @@ void jump(struct OPCode opc) {
 
 void setVx(struct OPCode opc) {
 	reg.V[opc.secondOrder] = (opc.thirdOrder << 4) | opc.fourthOrder;
+	printf("set V[%x] = %x\n", opc.secondOrder, reg.V[opc.secondOrder]);
 	next();
 }
 
 void addVx(struct OPCode opc) {
 	reg.V[opc.secondOrder] += (opc.thirdOrder << 4) | opc.fourthOrder;
+	printf("added V[%x] into %x\n", opc.secondOrder, reg.V[opc.secondOrder]);
 	next();
 }
 
@@ -97,6 +99,7 @@ void skip(struct OPCode opc) {
 void skipIfNotEqual(struct OPCode opc) {
 	uint8_t x = opc.secondOrder;
 	uint8_t kk = (opc.thirdOrder << 4) | opc.fourthOrder;
+	printf("V[%x] = %x, kk = %x\n", x, reg.V[x], kk);
 	if(reg.V[x] != kk) {
 		next();
 	}
@@ -114,16 +117,19 @@ void skipIfRegEqual(struct OPCode opc) {
 
 void setVxWithVy(struct OPCode opc) {
 	reg.V[opc.secondOrder] = reg.V[opc.thirdOrder];
+	printf("V[%x] = %x\n", opc.secondOrder, reg.V[opc.secondOrder]);
 	next();
 }
 
 void or(struct OPCode opc) {
-	reg.V[opc.secondOrder]= reg.V[opc.secondOrder] | reg.V[opc.thirdOrder];
+	reg.V[opc.secondOrder] = reg.V[opc.secondOrder] | reg.V[opc.thirdOrder];
+	printf("V[%x] = %x\n", opc.secondOrder, reg.V[opc.secondOrder]);
 	next();
 }
 
 void and(struct OPCode opc) {
 	reg.V[opc.secondOrder] = reg.V[opc.secondOrder] & reg.V[opc.thirdOrder];
+	printf("V[%x] = %x\n", opc.secondOrder, reg.V[opc.secondOrder]);
 	next();
 }
 
@@ -136,6 +142,7 @@ void addVxVy(struct OPCode opc) {
 	int result = reg.V[opc.secondOrder] + reg.V[opc.thirdOrder];
 	reg.V[0xF] = result > 0xFF;
 	reg.V[opc.secondOrder] = result;
+	printf("V[%x] = %x\n", opc.secondOrder, reg.V[opc.secondOrder]);
 
 	next();
 }
@@ -143,6 +150,7 @@ void addVxVy(struct OPCode opc) {
 void subtractVxVy(struct OPCode opc) {
 	reg.V[0xF] = reg.V[opc.secondOrder] > reg.V[opc.thirdOrder];
 	reg.V[opc.secondOrder] -= reg.V[opc.thirdOrder];
+	printf("V[%x] = %x\n", opc.secondOrder, reg.V[opc.secondOrder]);
 	next();
 }
 
@@ -150,12 +158,14 @@ void shiftRight(struct OPCode opc) {
 	uint8_t lsb = reg.V[opc.secondOrder] & 0x01;
 	reg.V[0xF] = lsb;
 	reg.V[opc.secondOrder] /= 2;
+	printf("V[%x] = %x\n", opc.secondOrder, reg.V[opc.secondOrder]);
 	next();
 }
 
 void subtractVyVx(struct OPCode opc) {
 	reg.V[0xF] = reg.V[opc.thirdOrder] > reg.V[opc.secondOrder];
 	reg.V[opc.secondOrder] = reg.V[opc.thirdOrder] - reg.V[opc.secondOrder];
+	printf("V[%x] = %x\n", opc.secondOrder, reg.V[opc.secondOrder]);
 	next();
 }
 
@@ -163,6 +173,7 @@ void shiftLeft(struct OPCode opc) {
 	uint8_t rsb = reg.V[opc.secondOrder] & 0x80;
 	reg.V[0xF] = rsb;
 	reg.V[opc.secondOrder] *= 2;
+	printf("V[%x] = %x\n", opc.secondOrder, reg.V[opc.secondOrder]);
 	next();
 }
 
@@ -182,6 +193,7 @@ void randomizeReg(struct OPCode opc) {
 	uint8_t kk = (opc.thirdOrder << 4) | opc.fourthOrder;
 	uint8_t randomNum = rand() % 256;
 	reg.V[opc.secondOrder] = randomNum & kk;
+	printf("V[%x] = %x\n", opc.secondOrder, reg.V[opc.secondOrder]);
 	next();
 }
 
@@ -200,9 +212,11 @@ void setFont(struct OPCode opc) {
 
 void storeBCD(struct OPCode opc) {
 	uint8_t val = reg.V[opc.secondOrder];
+	printf("val = %x\n", val);
 	for(int i = 2; i >= 0; --i) {
 		uint8_t digit = val % 10;
 		mem.base[reg.I + i] = digit;
+		printf("mem.base[%x] = %x\n", reg.I + i, mem.base[reg.I + i]);
 		val = (val - digit) / 10;
 	}
 	next();
@@ -219,37 +233,41 @@ void copyToMem(struct OPCode opc) {
 void copyToReg(struct OPCode opc) {
 	uint8_t x = opc.secondOrder;
 	for(int i = 0; i <= x; i++) {
-		reg.V[i] = mem.base[reg.I + 1];
+		reg.V[i] = mem.base[reg.I + i];
 		printf("V[%d] = %x\n", i, reg.V[i]);
 	}
 	next();
 }
 
 void skipIfPressed(struct OPCode opc) {
-	if (keyboardIsDown && pressedKeyboard == reg.V[opc.secondOrder]) {
+	if (keyboardIsDown && pressedKeyboard == reg.V[opc.secondOrder] && pressedKeyboard != 0xFF) {
 		next();
 	}
+	invalidateKey();
 	next();
 }
 
 void skipIfNotPressed(struct OPCode opc) {
-	if (!keyboardIsDown || pressedKeyboard != reg.V[opc.secondOrder]) {
+	if (!keyboardIsDown || pressedKeyboard != reg.V[opc.secondOrder] || pressedKeyboard == 0xFF) {
 		next();
 	}
 	next();
 }
 
 void waitForKey(struct OPCode opc) {
-	if (!keyboardIsDown) {
+	if (!keyboardIsDown || pressedKeyboard == 0xFF) {
 		return;
 	}
 	printf("press %x\n", pressedKeyboard);
 	reg.V[opc.secondOrder] = pressedKeyboard;
+	printf("V[%x] = %x\n", opc.secondOrder, reg.V[opc.secondOrder]);
+	invalidateKey();
 	next();
 }
 
 void setVxWithDT(struct OPCode opc) {
 	reg.V[opc.secondOrder] = reg.delay;
+	printf("V[%x] = %x\n", opc.secondOrder, reg.V[opc.secondOrder]);
 	next();
 }
 

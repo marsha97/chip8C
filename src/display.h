@@ -132,8 +132,14 @@ void pressKey(uint8_t key) {
 	pressedKeyboard = key;
 }
 
+void invalidateKey() {
+	pressedKeyboard = 0xFF;
+}
+
 void releaseKey() {
+	printf("release\n");
 	keyboardIsDown = false;
+	invalidateKey();
 }
 
 void setKey(SDL_Scancode key) {

@@ -243,7 +243,6 @@ void skipIfPressed(struct OPCode opc) {
 	if (keyboardIsDown && pressedKeyboard == reg.V[opc.secondOrder] && pressedKeyboard != 0xFF) {
 		next();
 	}
-	invalidateKey();
 	next();
 }
 
